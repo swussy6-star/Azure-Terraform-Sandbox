@@ -1,0 +1,33 @@
+name: Azure Terraform CI-CD
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows you to trigger it manually from the UI if needed
+
+jobs:
+  deploy:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    environment: Production # Must match your federated credential
+    
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Azure Login via OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Azure Connection
+        run: |
+          az account show
+
